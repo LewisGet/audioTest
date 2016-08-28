@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width">
+
+    <title>diff</title>
+  </head>
+
+  <body>
+    <button onclick="ljDiffSound.getSoundBuffer('what_a.wav')">load A</button>
+    <button onclick="ljDiffSound.getSoundBuffer('what_b.wav')">load B</button>
+    <button onclick="ljDiffSound.abSize()">a b size</button>
+    <button onclick="ljDiffSound.abScale()">a b scale</button>
+
+    <script type="text/javascript">
+      var ljDiffSound = {
+        source: [],
+        dataScale: [],
+        scaleSize: 100,
+        sort: "ab"
+      };
+
+      ljDiffSound.getSoundBuffer = function (fileName) {
+        var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        var source = audioCtx.createBufferSource();
+
+        request = new XMLHttpRequest();
+
+        request.open('GET', './' + fileName, true);
+        request.responseType = 'arraybuffer';
+
+        request.onload = function() {
+          var audioData = request.response;
+
+          audioCtx.decodeAudioData(audioData, function(buffer) {
+            source.buffer   = buffer;
+            ljDiffSound.source.push(source);
+            console.log(buffer);
+          });
+        };
+
+        request.send();
+      };
+
+      // 音訊較多者為主要比對者
+      ljDiffSound.abSize = function () {
+        var a = ljDiffSound.source[0];
+        var b = ljDiffSound.source[1];
+
+        if (a.buffer.length < b.buffer.length)
+        {
+          ljDiffSound.source[0] = b;
+          ljDiffSound.source[1] = a;
+
+          ljDiffSound.sort = "ba";
+        }
+      };
+
+      // 將兩組音效比例尺相同
+      ljDiffSound.abScale = function () {
+        var a = ljDiffSound.source[0];
+        var b = ljDiffSound.source[1];
+
+        // 一個音效結點縮放大小
+        var pointSize = parseInt(a.buffer.length / b.buffer.length * ljDiffSound.scaleSize);
+
+        var a = a.buffer.getChannelData(0);
+        var b = b.buffer.getChannelData(0);
+
+        // [1,2,3] - > [1,1,1,2,2,2,3,3,3]
+        var rebuildDataA = [];
+
+        // [1,2,3] - > [1,1,1,2,2,2,3,3,3]
+        var rebuildDataB = [];
+
+        for (var x = 0; x < a.length; x++)
+        {
+          for (var y = 0; y < ljDiffSound.scaleSize; y++)
+          {
+            rebuildDataA.push(a[x]);
+          }
+        }
+
+        for (var x = 0; x < b.length; x++)
+        {
+          for (var y = 0; y < pointSize; y++)
+          {
+            rebuildDataB.push(b[x]);
+          }
+        }
+
+        ljDiffSound.dataScale = [rebuildDataA, rebuildDataB];
+      };
+    </script>
+  </body>
+</html>
