@@ -19,10 +19,11 @@
       var ljDiffSound = {
         source: [],
         dataScale: [],
-        //scaleSize: 100,
+        //timeLineScaleSize: 100,
 
         //debug
-        scaleSize: 10,
+        timeLineScaleSize: 10,
+
         sort: "ab"
       };
 
@@ -68,7 +69,7 @@
         var b = ljDiffSound.source[1];
 
         // 一個音效結點縮放大小
-        var pointSize = parseInt(a.buffer.length / b.buffer.length * ljDiffSound.scaleSize);
+        var pointSize = parseInt(a.buffer.length / b.buffer.length * ljDiffSound.timeLineScaleSize);
 
         var a = a.buffer.getChannelData(0);
         var b = b.buffer.getChannelData(0);
@@ -81,7 +82,7 @@
 
         for (var x = 0; x < a.length; x++)
         {
-          for (var y = 0; y < ljDiffSound.scaleSize; y++)
+          for (var y = 0; y < ljDiffSound.timeLineScaleSize; y++)
           {
             rebuildDataA.push(a[x]);
           }
