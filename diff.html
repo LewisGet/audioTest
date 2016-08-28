@@ -14,6 +14,7 @@
     <button onclick="ljDiffSound.getSoundBuffer('what_b.wav')">load B</button>
     <button onclick="ljDiffSound.abSize()">a b size</button>
     <button onclick="ljDiffSound.abScale()">a b scale</button>
+    <button onclick="ljDiffSound.mappingUpdate()">mapping update</button>
 
     <script type="text/javascript">
       var ljDiffSound = {
@@ -23,6 +24,14 @@
 
         //debug
         timeLineScaleSize: 10,
+
+        // a point sound rang
+        //pointSoundScale: 10000,
+
+        //debug
+        pointSoundScale: 1000,
+
+        mapping: {},
 
         sort: "ab"
       };
@@ -97,6 +106,55 @@
         }
 
         ljDiffSound.dataScale = [rebuildDataA, rebuildDataB];
+      };
+
+      // 將索引改成 a sound value -> diff value -> time (次數)
+      ljDiffSound.mappingPush = function (key, value)
+      {
+        key = key.toString();
+        value = parseInt(value);
+
+        if (ljDiffSound.mapping[key] == undefined)
+        {
+          ljDiffSound.mapping[key] = {};
+        }
+
+        if (ljDiffSound.mapping[key][value] == undefined)
+        {
+          ljDiffSound.mapping[key][value] = 0;
+        }
+
+        ljDiffSound.mapping[key][value]++;
+      };
+
+      /**
+       * 以 a 音效當索引，排列音訊差異
+       */
+      ljDiffSound.mappingUpdate = function ()
+      {
+        var a = ljDiffSound.dataScale[0];
+        var b = ljDiffSound.dataScale[1];
+
+        for (var i = 0; i < a.length; i++)
+        {
+          var aValue = a[i];
+          var bValue = b[i];
+
+          // done
+          if (bValue == undefined)
+          {
+            return true;
+          }
+
+          aValue = parseInt(parseFloat(aValue) * ljDiffSound.pointSoundScale);
+          bValue = parseInt(parseFloat(bValue) * ljDiffSound.pointSoundScale);
+
+          var diff = aValue - bValue;
+
+          ljDiffSound.mappingPush(aValue, diff);
+        }
+
+        return true;
       };
     </script>
   </body>
